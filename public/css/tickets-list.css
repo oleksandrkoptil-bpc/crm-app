@@ -1,3 +1,40 @@
+.filters {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(140px, 1fr)) auto;
+    gap: 14px;
+    align-items: end;
+    margin-bottom: 18px;
+    padding: 16px;
+}
+
+.filter-field label {
+    display: block;
+    margin-bottom: 6px;
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    height: 38px;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.clear-link {
+    color: #6b7280;
+    font-size: 14px;
+}
+
 .table {
     width: 100%;
     border-collapse: collapse;

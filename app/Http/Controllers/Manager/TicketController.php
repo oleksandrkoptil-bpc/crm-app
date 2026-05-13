@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -12,16 +13,28 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class TicketController extends Controller {
 
-    public function index(): View {
+    public function index(Request $request): View {
 
-        $tickets = Ticket::query()
-            ->with('customer')
+        $filters = $request->validate([
+            'date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'in:' . implode(',', array_keys($this->statuses()))],
+            'email' => ['nullable', 'string', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:30'],
+        ]);
+
+        $query = Ticket::query()->with('customer');
+
+        $this->applyFilters($query, $filters);
+
+        $tickets = $query
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
         return view('manager.tickets.index', [
             'tickets' => $tickets,
             'statuses' => $this->statuses(),
+            'filters' => $filters,
         ]);
     }
 
@@ -67,5 +80,32 @@ class TicketController extends Controller {
             Ticket::STATUS_IN_PROGRESS => 'In progress',
             Ticket::STATUS_PROCESSED => 'Processed',
         ];
+    }
+
+    private function applyFilters(Builder $query, array $filters): void {
+
+        if (! empty($filters['date'])) {
+            $query->whereDate('created_at', $filters['date']);
+        }
+
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['email'])) {
+            $email = $filters['email'];
+
+            $query->whereHas('customer', function (Builder $customerQuery) use ($email) {
+                $customerQuery->where('email', 'like', "%{$email}%");
+            });
+        }
+
+        if (! empty($filters['phone'])) {
+            $phone = $filters['phone'];
+
+            $query->whereHas('customer', function (Builder $customerQuery) use ($phone) {
+                $customerQuery->where('phone', 'like', "%{$phone}%");
+            });
+        }
     }
 }

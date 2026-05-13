@@ -47,6 +47,40 @@ class ManagerTicketsTest extends TestCase
         $this->assertNotNull($ticket->manager_replied_at);
     }
 
+    public function test_manager_can_filter_tickets_by_status(): void
+    {
+        $manager = $this->manager();
+        $newTicket = Ticket::factory()->for(Customer::factory())->create([
+            'status' => Ticket::STATUS_NEW,
+            'subject' => 'Fresh request',
+        ]);
+        $processedTicket = Ticket::factory()->for(Customer::factory())->create([
+            'status' => Ticket::STATUS_PROCESSED,
+            'subject' => 'Processed request',
+        ]);
+
+        $this->actingAs($manager)
+            ->get(route('manager.tickets.index', ['status' => Ticket::STATUS_NEW]))
+            ->assertOk()
+            ->assertSee($newTicket->subject)
+            ->assertDontSee($processedTicket->subject);
+    }
+
+    public function test_manager_can_filter_tickets_by_customer_email(): void
+    {
+        $manager = $this->manager();
+        $matchedCustomer = Customer::factory()->create(['email' => 'john@example.test']);
+        $otherCustomer = Customer::factory()->create(['email' => 'mary@example.test']);
+        $matchedTicket = Ticket::factory()->for($matchedCustomer)->create(['subject' => 'Matched customer']);
+        $otherTicket = Ticket::factory()->for($otherCustomer)->create(['subject' => 'Other customer']);
+
+        $this->actingAs($manager)
+            ->get(route('manager.tickets.index', ['email' => 'john@example.test']))
+            ->assertOk()
+            ->assertSee($matchedTicket->subject)
+            ->assertDontSee($otherTicket->subject);
+    }
+
     public function test_guest_cannot_open_manager_tickets(): void
     {
         $this->get(route('manager.tickets.index'))->assertRedirect(route('login'));
