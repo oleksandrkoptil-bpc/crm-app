@@ -1,0 +1,26 @@
+.details {
+    padding: 20px;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.message {
+    white-space: pre-line;
+    line-height: 1.55;
+}
+
+.files {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.status-form {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
