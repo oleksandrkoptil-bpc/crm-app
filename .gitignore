@@ -11,6 +11,8 @@
 /.phpunit.cache
 /.vscode
 /.zed
+/.postman
+/postman
 /auth.json
 /database/*.sqlite
 /node_modules
