@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,19 +17,29 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Admin CRM',
-            'email' => 'admin@crm.test',
-            'role' => 'admin',
-            'password' => Hash::make('password'),
-        ]);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        User::factory()->create([
-            'name' => 'Manager CRM',
-            'email' => 'manager@crm.test',
-            'role' => 'manager',
-            'password' => Hash::make('password'),
-        ]);
+        $adminRole = Role::firstOrCreate(['name' => 'admin']);
+        $managerRole = Role::firstOrCreate(['name' => 'manager']);
+
+        $admin = User::query()->updateOrCreate(
+            ['email' => 'admin@crm.test'],
+            [
+                'name' => 'Admin CRM',
+                'password' => Hash::make('password'),
+            ],
+        );
+
+        $manager = User::query()->updateOrCreate(
+            ['email' => 'manager@crm.test'],
+            [
+                'name' => 'Manager CRM',
+                'password' => Hash::make('password'),
+            ],
+        );
+
+        $admin->assignRole($adminRole);
+        $manager->assignRole($managerRole);
 
         $customers = Customer::factory(6)->create();
 
