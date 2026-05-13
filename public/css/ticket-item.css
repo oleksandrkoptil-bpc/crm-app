@@ -1,17 +1,62 @@
-.details {
-    padding: 20px;
-}
-
-.row {
+.ticket-page {
     display: grid;
-    grid-template-columns: 180px 1fr;
-    gap: 16px;
-    margin-bottom: 14px;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 20px;
+    align-items: start;
 }
 
-.message {
+.ticket-main {
+    padding: 22px;
+}
+
+.ticket-section + .ticket-section {
+    margin-top: 22px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.section-label {
+    margin-bottom: 8px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.ticket-subject {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.35;
+}
+
+.customer-card {
+    width: 100%;
+    display: inline-block;
+    min-width: 260px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #f9fafb;
+}
+
+.customer-name {
+    margin-bottom: 6px;
+    font-weight: 700;
+}
+
+.customer-meta {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.message-box {
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #f9fafb;
+    line-height: 1.6;
     white-space: pre-line;
-    line-height: 1.55;
 }
 
 .files {
@@ -19,8 +64,51 @@
     padding-left: 18px;
 }
 
+.files li + li {
+    margin-top: 6px;
+}
+
+.ticket-sidebar {
+    display: grid;
+    gap: 16px;
+}
+
+.sidebar-panel {
+    padding: 16px;
+}
+
+.sidebar-title {
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
 .status-form {
-    display: flex;
-    align-items: flex-start;
+    display: grid;
     gap: 8px;
+}
+
+.status-form .select,
+.status-form .button {
+    width: 100%;
+}
+
+.date-row {
+    display: grid;
+    gap: 4px;
+    padding: 10px 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+.date-row:first-of-type {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.date-row span {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.date-row strong {
+    font-size: 14px;
 }
