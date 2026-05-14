@@ -1,12 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Manager\TicketController;
 use App\Http\Controllers\WidgetController;
 
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('manager.tickets.index');
+    }
+
+    return redirect()->route('login');
 });
 
 Route::get('/docs/api-docs.json', function () {

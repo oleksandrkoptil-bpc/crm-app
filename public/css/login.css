@@ -12,6 +12,12 @@ body {
     color: #1f2937;
 }
 
+.page-login {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
 .card {
     width: 100%;
     max-width: 380px;
