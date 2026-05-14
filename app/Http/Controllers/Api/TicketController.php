@@ -7,6 +7,7 @@ use App\Http\Requests\Api\StoreTicketRequest;
 use App\Models\Customer;
 use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class TicketController extends Controller
@@ -33,6 +34,8 @@ class TicketController extends Controller
         foreach ($request->file('attachments', []) as $file) {
             $ticket->addMedia($file)->toMediaCollection('attachments');
         }
+
+        Cache::forget('ticket_statistics');
 
         $ticket->load('customer');
 

@@ -6,18 +6,33 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class TicketStatisticsController extends Controller
 {
+    private const CACHE_KEY = 'ticket_statistics';
+    private const CACHE_TTL_MINUTES = 5;
+
     public function __invoke(): JsonResponse
     {
         return response()->json([
-            'data' => [
-                'day' => $this->statsFor(Carbon::now()->subDay()),
-                'week' => $this->statsFor(Carbon::now()->subWeek()),
-                'month' => $this->statsFor(Carbon::now()->subMonth()),
-            ],
+            'data' => Cache::remember(
+                self::CACHE_KEY,
+                now()->addMinutes(self::CACHE_TTL_MINUTES),
+                fn () => $this->statistics()
+            ),
         ]);
+    }
+
+    private function statistics(): array
+    {
+        $now = Carbon::now();
+
+        return [
+            'day' => $this->statsFor($now->copy()->subDay()),
+            'week' => $this->statsFor($now->copy()->subWeek()),
+            'month' => $this->statsFor($now->copy()->subMonth()),
+        ];
     }
 
     private function statsFor(Carbon $from): array

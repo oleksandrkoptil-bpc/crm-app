@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use App\Support\WidgetApiToken;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class ApiTicketsTest extends TestCase
@@ -18,6 +19,7 @@ class ApiTicketsTest extends TestCase
         parent::setUp();
 
         config(['services.api.token' => 'test-token']);
+        Cache::flush();
     }
 
     public function test_api_requires_token(): void
@@ -133,5 +135,29 @@ class ApiTicketsTest extends TestCase
             ->assertJsonPath('data.month.by_status.new', 1)
             ->assertJsonPath('data.month.by_status.in_progress', 1)
             ->assertJsonPath('data.month.by_status.processed', 1);
+
+        $this->assertTrue(Cache::has('ticket_statistics'));
+    }
+
+    public function test_ticket_statistics_cache_is_cleared_after_ticket_creation(): void
+    {
+        $customer = Customer::factory()->create();
+
+        Ticket::factory()->for($customer)->create();
+
+        $this->withToken('test-token')->getJson('/api/tickets/statistics')->assertOk();
+
+        $this->assertTrue(Cache::has('ticket_statistics'));
+
+        $this->withToken('test-token')->post('/api/tickets', [
+            'customer' => [
+                'name' => 'Cache Reset User',
+                'phone' => '+380671234599',
+            ],
+            'subject' => 'Reset cache',
+            'message' => 'Cache should be cleared after new ticket.',
+        ])->assertCreated();
+
+        $this->assertFalse(Cache::has('ticket_statistics'));
     }
 }
