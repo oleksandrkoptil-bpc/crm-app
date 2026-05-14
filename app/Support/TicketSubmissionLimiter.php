@@ -6,14 +6,12 @@ use Illuminate\Support\Facades\Cache;
 
 class TicketSubmissionLimiter
 {
-    private const TTL_SECONDS = 86400;
-
     public function acquire(array $customer): bool
     {
         $reservedKeys = [];
 
         foreach ($this->keysFor($customer) as $key) {
-            if (! Cache::add($key, true, now()->addSeconds(self::TTL_SECONDS))) {
+            if (! Cache::add($key, true, now()->endOfDay())) {
                 foreach ($reservedKeys as $reservedKey) {
                     Cache::forget($reservedKey);
                 }
@@ -49,11 +47,11 @@ class TicketSubmissionLimiter
 
     private function phoneKey(string $phone): string
     {
-        return 'ticket_submission_limit:phone:'.sha1($phone);
+        return 'ticket_submission_limit:phone:'.sha1($phone).':'.now()->toDateString();
     }
 
     private function emailKey(string $email): string
     {
-        return 'ticket_submission_limit:email:'.sha1(mb_strtolower($email));
+        return 'ticket_submission_limit:email:'.sha1(mb_strtolower($email)).':'.now()->toDateString();
     }
 }
