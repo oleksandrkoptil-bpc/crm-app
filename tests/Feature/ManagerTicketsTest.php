@@ -24,7 +24,8 @@ class ManagerTicketsTest extends TestCase
         $this->actingAs($manager)
             ->get(route('manager.tickets.index'))
             ->assertOk()
-            ->assertSee($ticket->subject);
+            ->assertSee($ticket->subject)
+            ->assertSee('Swagger');
     }
 
     public function test_manager_can_update_ticket_status(): void

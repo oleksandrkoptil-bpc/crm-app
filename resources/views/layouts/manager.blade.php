@@ -15,6 +15,9 @@
             <a class="nav-link {{ request()->routeIs('manager.tickets.*') ? 'active' : '' }}" href="{{ route('manager.tickets.index') }}">
                 Tickets
             </a>
+            <a class="nav-link" href="{{ url('/api/documentation') }}" target="_blank" rel="noreferrer">
+                Swagger
+            </a>
         </nav>
 
         <form class="logout" method="post" action="{{ route('logout') }}">
