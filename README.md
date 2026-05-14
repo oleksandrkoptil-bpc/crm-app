@@ -125,6 +125,52 @@ API:
 - `POST /api/tickets`
 - `GET /api/tickets/statistics`
 
+## Widget
+
+`/widget` is a ready-to-use customer contact form that can be embedded into another site through an iframe.
+
+Widget URL:
+
+```text
+http://localhost:8080/widget
+```
+
+Embed example:
+
+```html
+<iframe
+    src="http://localhost:8080/widget"
+    width="420"
+    height="720"
+    style="border:0;"
+></iframe>
+```
+
+For production use the real domain instead of `localhost`:
+
+```html
+<iframe
+    src="https://your-domain.com/widget"
+    width="420"
+    height="720"
+    style="border:0;"
+></iframe>
+```
+
+Widget features:
+
+- sends requests to `POST /api/tickets`
+- uses AJAX with vanilla JavaScript
+- has basic frontend validation
+- supports file uploads
+- shows success and error messages to the user
+
+Notes:
+
+- the widget is designed to be opened inside an iframe
+- ticket creation from the widget is protected by a temporary widget token
+- the same ticket submission limit applies to the widget: one request per day for the same phone number or email
+
 ## API authentication
 
 API requests use Bearer token from `.env`:
