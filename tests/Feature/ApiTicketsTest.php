@@ -106,6 +106,92 @@ class ApiTicketsTest extends TestCase
             ->assertInvalid(['attachments.0']);
     }
 
+    public function test_api_limits_ticket_submission_by_phone(): void
+    {
+        $payload = [
+            'customer' => [
+                'name' => 'John Smith',
+                'phone' => '+380501112233',
+            ],
+            'subject' => 'Payment issue',
+            'message' => 'Customer cannot complete payment.',
+        ];
+
+        $this->withToken('test-token')->post('/api/tickets', $payload)->assertCreated();
+
+        $this
+            ->withToken('test-token')
+            ->postJson('/api/tickets', $payload)
+            ->assertStatus(429)
+            ->assertJsonPath('message', 'A ticket has already been submitted today with this phone number or email.');
+    }
+
+    public function test_api_limits_ticket_submission_by_email(): void
+    {
+        $this->withToken('test-token')->post('/api/tickets', [
+            'customer' => [
+                'name' => 'John Smith',
+                'phone' => '+380501112233',
+                'email' => 'john@example.test',
+            ],
+            'subject' => 'Payment issue',
+            'message' => 'Customer cannot complete payment.',
+        ])->assertCreated();
+
+        $this
+            ->withToken('test-token')
+            ->postJson('/api/tickets', [
+                'customer' => [
+                    'name' => 'Another User',
+                    'phone' => '+380671112244',
+                    'email' => 'john@example.test',
+                ],
+                'subject' => 'Need a consultation',
+                'message' => 'Customer asked about pricing.',
+            ])
+            ->assertStatus(429);
+    }
+
+    public function test_widget_token_respects_ticket_submission_limit(): void
+    {
+        $headers = [
+            'X-Widget-Token' => WidgetApiToken::make(now()->addHour()->timestamp),
+        ];
+
+        $payload = [
+            'customer' => [
+                'name' => 'Widget User',
+                'phone' => '+380671234500',
+                'email' => 'widget@example.test',
+            ],
+            'subject' => 'Widget request',
+            'message' => 'Request created from embedded widget.',
+        ];
+
+        $this->withHeaders($headers)->post('/api/tickets', $payload)->assertCreated();
+
+        $this->withHeaders($headers)->postJson('/api/tickets', $payload)->assertStatus(429);
+    }
+
+    public function test_ticket_can_be_created_again_after_limit_window_expires(): void
+    {
+        $payload = [
+            'customer' => [
+                'name' => 'John Smith',
+                'phone' => '+380501112233',
+            ],
+            'subject' => 'Payment issue',
+            'message' => 'Customer cannot complete payment.',
+        ];
+
+        $this->withToken('test-token')->post('/api/tickets', $payload)->assertCreated();
+
+        $this->travel(1)->days();
+        $this->travel(1)->seconds();
+
+        $this->withToken('test-token')->post('/api/tickets', $payload)->assertCreated();
+    }
+
     public function test_ticket_statistics_are_returned_for_day_week_and_month(): void
     {
         $customer = Customer::factory()->create();

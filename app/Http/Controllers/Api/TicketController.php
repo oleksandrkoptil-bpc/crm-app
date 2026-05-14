@@ -58,17 +58,32 @@ class TicketController extends Controller
                 description: 'Validation error',
                 content: new OA\JsonContent(ref: '#/components/schemas/ValidationErrorResponse'),
             ),
+            new OA\Response(
+                response: 429,
+                description: 'Too many requests',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'message',
+                            type: 'string',
+                            example: 'A ticket has already been submitted today with this phone number or email.',
+                        ),
+                    ],
+                    type: 'object',
+                ),
+            ),
         ],
     )]
     public function store(StoreTicketRequest $request): JsonResponse
     {
         $data = $request->validated();
+        $customerData = $data['customer'];
 
         $customer = Customer::query()->updateOrCreate(
-            ['phone' => $data['customer']['phone']],
+            ['phone' => $customerData['phone']],
             [
-                'name' => $data['customer']['name'],
-                'email' => $data['customer']['email'] ?? null,
+                'name' => $customerData['name'],
+                'email' => $customerData['email'] ?? null,
             ],
         );
 
