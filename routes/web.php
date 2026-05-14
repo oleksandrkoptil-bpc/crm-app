@@ -9,6 +9,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/docs/api-docs.json', function () {
+    abort_unless(file_exists(storage_path('api-docs/api-docs.json')), 404);
+
+    return response()->file(storage_path('api-docs/api-docs.json'), [
+        'Content-Type' => 'application/json',
+    ]);
+})->name('swagger.docs.json');
+
 Route::get('/widget', WidgetController::class)->name('widget');
 
 Route::middleware('guest')->group(function () {

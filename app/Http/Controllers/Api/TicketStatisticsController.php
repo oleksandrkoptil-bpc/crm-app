@@ -7,12 +7,32 @@ use App\Models\Ticket;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
+use OpenApi\Attributes as OA;
 
 class TicketStatisticsController extends Controller
 {
     private const CACHE_KEY = 'ticket_statistics';
     private const CACHE_TTL_MINUTES = 5;
 
+    #[OA\Get(
+        path: '/api/tickets/statistics',
+        tags: ['Tickets'],
+        summary: 'Get ticket statistics',
+        description: 'Returns ticket statistics for the last day, week and month.',
+        security: [['bearerAuth' => []]],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Ticket statistics',
+                content: new OA\JsonContent(ref: '#/components/schemas/TicketStatisticsResponse'),
+            ),
+            new OA\Response(
+                response: 401,
+                description: 'Unauthorized',
+                content: new OA\JsonContent(ref: '#/components/schemas/UnauthorizedResponse'),
+            ),
+        ],
+    )]
     public function __invoke(): JsonResponse
     {
         return response()->json([
