@@ -3,10 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Manager\TicketController;
+use App\Http\Controllers\WidgetController;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/widget', WidgetController::class)->name('widget');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'show'])->name('login');

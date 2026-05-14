@@ -26,6 +26,10 @@ return [
         'token' => env('API_TOKEN'),
     ],
 
+    'widget' => [
+        'token_ttl' => env('WIDGET_TOKEN_TTL', 60),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),
